@@ -1,8 +1,10 @@
+import { useHistory } from 'react-router-dom';
 import React, { useState } from 'react';
 
 import { Button, Form, FormGroup, Label, Input, Card, CardBody, } from 'reactstrap';
 
 import { Link } from "react-router-dom";
+
 import axios from 'axios';
 import { API_BASE_URL } from '../../services/api';
 
@@ -20,9 +22,11 @@ function Login() {
         TEXT_DANGER: 'text-danger'
     }
 
+    const history = useHistory();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-	
+
     const [loading, setLoading] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState("");
@@ -53,6 +57,7 @@ function Login() {
             .then(response => {
                 setLoading(false);
                 localStorage.setItem(LOCALSTORAGE_TOKEN_LOGIN, JSON.stringify(response.data));
+                history.push("/my-pets");
             })
             .catch(error => {
                 setLoading(false);
