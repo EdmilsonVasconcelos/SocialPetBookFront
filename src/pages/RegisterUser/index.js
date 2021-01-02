@@ -8,21 +8,36 @@ import { API_BASE_URL } from '../../services/api';
 
 function RegisterUser() {
 
+    const MESSAGES = {
+        INPUT_EMPTY: 'Preencha os campos',
+        EMAIL_NOT_MATCH: 'Confirmação de e-mail não confere',
+        PASSWORD_NOT_MATCH: 'Confirmação de senha não confere',
+        USER_EXIST: 'Usuário já cadastrado no nosso sistema',
+        TUTOR_REGISTER_SUCCESS: 'Tutor cadastrado com sucesso, efetue login'
+    }
+
+    const CLASSES = {
+        TEXT_DANGER: 'text-danger',
+        TEXT_SUCCESS: 'text-success'
+    }
+
     const [name, setName] = useState("");
+
     const [email, setEmail] = useState("");
     const [confirmationEmail, setConfirmationEmail] = useState("");
+
     const [password, setPassword] = useState("");
     const [confirmationPassword, setConfirmationPassword] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState("");
+    const [classMessage, setClassMessage] = useState("");
 
     const handleSubmit = e => {
         e.preventDefault();
         setLoading(true);
-
         validForm({ name, email, password, confirmationEmail, confirmationPassword });
-
     };
 
     const validForm = data => {
@@ -32,22 +47,19 @@ function RegisterUser() {
             || data.confirmationPassword === ""
             || data.name === "") {
             setLoading(false);
-            setShowMessage(true);
-            setMessage("Preencha os campos");
+            configurationMessage(true, MESSAGES.INPUT_EMPTY, CLASSES.TEXT_DANGER);
             return;
         }
 
         if (data.email !== data.confirmationEmail) {
             setLoading(false);
-            setShowMessage(true);
-            setMessage("Confirmação de e-mail não confere");
+            configurationMessage(true, MESSAGES.EMAIL_NOT_MATCH, CLASSES.TEXT_DANGER);
             return;
         }
 
         if (data.password !== data.confirmationPassword) {
             setLoading(false);
-            setShowMessage(true);
-            setMessage("Confirmação de senha não confere");
+            configurationMessage(true, MESSAGES.PASSWORD_NOT_MATCH, CLASSES.TEXT_DANGER);
             return;
         }
 
@@ -61,13 +73,32 @@ function RegisterUser() {
             email: data.email,
             password: data.password
         })
-            .then(response => {
-                console.log(response);
+            .then(_ => {
+                setLoading(false);
+                configurationMessage(true, MESSAGES.TUTOR_REGISTER_SUCCESS, CLASSES.TEXT_SUCCESS);
+                resetInputsForm();
             })
             .catch(error => {
-                console.log(error.response.data.message);
+                setLoading(false);
+                if (error.response.data.code === 102) {
+                    configurationMessage(true, MESSAGES.USER_EXIST, CLASSES.TEXT_DANGER);
+                }
             });
 
+    }
+
+    const configurationMessage = (showMessage, message, classMessage) => {
+        setShowMessage(showMessage);
+        setMessage(message);
+        setClassMessage(classMessage);
+    }
+
+    const resetInputsForm = () => {
+        setName('');
+        setEmail('');
+        setConfirmationEmail('');
+        setPassword('');
+        setConfirmationPassword('');
     }
 
     return (
@@ -77,11 +108,11 @@ function RegisterUser() {
 
                     <h2 className="text-muted text-center mb-5">Criar sua conta no PetBook</h2>
 
-                    {showMessage && <p className="text-danger text-center">{message}</p>}
+                    {showMessage && <p className={`text-center ${classMessage}`}>{message}</p>}
 
                     <Form onSubmit={handleSubmit}>
                         <FormGroup>
-                            <Label for="name">Preencha seu nome, Tutor</Label>
+                            <Label for="name">Tutor, preencha seu nome</Label>
                             <Input
                                 type="text"
                                 name="name"
